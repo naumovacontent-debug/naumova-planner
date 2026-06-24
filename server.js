@@ -6,11 +6,10 @@ const fs      = require('fs');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ── НАСТРОЙКИ ─────────────────────────────────────────────────
-const WB_API_KEY   = process.env.WB_API_KEY   || '';
-const SALES_DAYS   = parseInt(process.env.SALES_DAYS  || '93');
-const TARGET_DAYS  = parseInt(process.env.TARGET_DAYS || '60');
-const MIN_BATCH    = parseInt(process.env.MIN_BATCH   || '10');
+const WB_API_KEY  = process.env.WB_API_KEY  || '';
+const SALES_DAYS  = parseInt(process.env.SALES_DAYS  || '93');
+const TARGET_DAYS = parseInt(process.env.TARGET_DAYS || '60');
+const MIN_BATCH   = parseInt(process.env.MIN_BATCH   || '10');
 
 const FABRIC_MAP = {
   'Пижамы':'Хлопок / Вискоза','Костюмы':'Хлопок / Муслин',
@@ -32,37 +31,60 @@ const DEFAULT_WITHDRAW = [
   'халат_Грэйс_черный','халат_Грэйс_шоколад','DenimSky','Пионы2в1',
 ];
 
-// ── КЭШ ───────────────────────────────────────────────────────
 let cache = { data: null, updated: null, loading: false };
 
-// ── WB API ────────────────────────────────────────────────────
-function wbGet(path, params) {
+// Находим папку с index.html автоматически
+function findStaticDir() {
+  const candidates = ['public', 'static', 'публичный', 'общественный'];
+  for (const name of candidates) {
+    const p = path.join(__dirname, name);
+    if (fs.existsSync(p) && fs.existsSync(path.join(p, 'index.html'))) {
+      console.log('Папка со статикой найдена: ' + name);
+      return p;
+    }
+  }
+  // ищем любую папку с index.html
+  try {
+    const dirs = fs.readdirSync(__dirname).filter(f => {
+      try {
+        return fs.statSync(path.join(__dirname, f)).isDirectory()
+          && f !== 'node_modules' && !f.startsWith('.');
+      } catch(e) { return false; }
+    });
+    for (const d of dirs) {
+      if (fs.existsSync(path.join(__dirname, d, 'index.html'))) {
+        console.log('Папка со статикой найдена: ' + d);
+        return path.join(__dirname, d);
+      }
+    }
+  } catch(e) {}
+  console.log('Папка со статикой не найдена, используем public');
+  return path.join(__dirname, 'public');
+}
+
+function wbGet(urlPath, params) {
   return new Promise((resolve, reject) => {
-    const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-    const url = `https://statistics-api.wildberries.ru/api/v1${path}?${qs}`;
-    const req = https.get(url, {
-      headers: { 'Authorization': WB_API_KEY }
-    }, res => {
+    const qs = Object.entries(params).map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
+    const url = 'https://statistics-api.wildberries.ru/api/v1' + urlPath + '?' + qs;
+    const req = https.get(url, { headers: { 'Authorization': WB_API_KEY } }, res => {
       let body = '';
       res.on('data', d => body += d);
       res.on('end', () => {
         if (res.statusCode === 401) return reject(new Error('Неверный API-ключ (401)'));
-        if (res.statusCode === 429) return reject(new Error('Лимит запросов WB (429). Подождите минуту.'));
-        if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
+        if (res.statusCode === 429) return reject(new Error('Лимит запросов WB (429)'));
+        if (res.statusCode !== 200) return reject(new Error('HTTP ' + res.statusCode));
         try { resolve(JSON.parse(body)); }
-        catch(e) { reject(new Error('Ошибка парсинга ответа WB')); }
+        catch(e) { reject(new Error('Ошибка парсинга WB')); }
       });
     });
     req.on('error', reject);
-    req.setTimeout(45000, () => { req.abort(); reject(new Error('Таймаут WB API')); });
+    req.setTimeout(45000, () => { req.destroy(); reject(new Error('Таймаут WB API')); });
   });
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
 function formatDate(d) { return d.toISOString().split('T')[0]; }
 
-// ── ОБРАБОТКА ДАННЫХ ──────────────────────────────────────────
 function processData(salesRaw, ordersRaw, stocksRaw, withdraw) {
   const pd = SALES_DAYS, tgt = TARGET_DAYS, mb = MIN_BATCH;
   const wdSet = new Set(withdraw);
@@ -91,8 +113,8 @@ function processData(salesRaw, ordersRaw, stocksRaw, withdraw) {
   const rows = [];
   Object.values(salesMap).forEach(s => {
     if (s.sold <= 0) return;
-    const k    = s.sku + '|' + s.size;
-    const ord  = ordMap[k] || s.sold;
+    const k   = s.sku + '|' + s.size;
+    const ord = ordMap[k] || s.sold;
     const conv = ord > 0 ? Math.min(s.sold / ord, 1) : 0;
     const spd  = s.sold / pd;
     const st   = stMap[k] || { wb:0, to:0, frm:0 };
@@ -146,9 +168,8 @@ function processData(salesRaw, ordersRaw, stocksRaw, withdraw) {
   };
 }
 
-// ── ЗАГРУЗКА ДАННЫХ ───────────────────────────────────────────
 async function fetchData() {
-  if (!WB_API_KEY) throw new Error('WB_API_KEY не задан в переменных окружения');
+  if (!WB_API_KEY) throw new Error('WB_API_KEY не задан');
   cache.loading = true;
   try {
     const today     = new Date();
@@ -158,20 +179,19 @@ async function fetchData() {
 
     console.log('Загружаю продажи...');
     const salesRaw = await wbGet('/supplier/sales', { dateFrom, dateTo, flag: 1 });
-    console.log(`Продаж: ${salesRaw.length}`);
+    console.log('Продаж: ' + salesRaw.length);
     await sleep(700);
 
     console.log('Загружаю заказы...');
     const ordersRaw = await wbGet('/supplier/orders', { dateFrom, dateTo, flag: 1 });
-    console.log(`Заказов: ${ordersRaw.length}`);
+    console.log('Заказов: ' + ordersRaw.length);
     await sleep(700);
 
     console.log('Загружаю остатки...');
     const stocksRaw = await wbGet('/supplier/stocks', { dateFrom: yesterday });
-    console.log(`Остатков: ${stocksRaw.length}`);
+    console.log('Остатков: ' + stocksRaw.length);
 
-    const withdraw = loadWithdraw();
-    const result   = processData(salesRaw, ordersRaw, stocksRaw, withdraw);
+    const result = processData(salesRaw, ordersRaw, stocksRaw, loadWithdraw());
     cache.data    = result;
     cache.updated = new Date().toISOString();
     console.log('Данные обновлены успешно');
@@ -181,14 +201,11 @@ async function fetchData() {
   }
 }
 
-// ── ВЫВОДИМЫЕ ─────────────────────────────────────────────────
 const WITHDRAW_FILE = path.join(__dirname, '.data', 'withdraw.json');
 
 function loadWithdraw() {
   try {
-    if (fs.existsSync(WITHDRAW_FILE)) {
-      return JSON.parse(fs.readFileSync(WITHDRAW_FILE, 'utf8'));
-    }
+    if (fs.existsSync(WITHDRAW_FILE)) return JSON.parse(fs.readFileSync(WITHDRAW_FILE, 'utf8'));
   } catch(e) {}
   return DEFAULT_WITHDRAW;
 }
@@ -199,58 +216,41 @@ function saveWithdraw(list) {
   fs.writeFileSync(WITHDRAW_FILE, JSON.stringify(list), 'utf8');
 }
 
-// ── MIDDLEWARE ────────────────────────────────────────────────
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(findStaticDir()));
 
-// ── API ROUTES ────────────────────────────────────────────────
 app.get('/api/data', (req, res) => {
-  if (!cache.data) {
-    return res.json({ status: 'empty', message: 'Нажмите Обновить для загрузки данных' });
-  }
+  if (!cache.data) return res.json({ status: 'empty', message: 'Нажмите Обновить' });
   res.json({ status: 'ok', ...cache.data, is_loading: cache.loading });
 });
 
 app.post('/api/refresh', async (req, res) => {
   if (cache.loading) return res.json({ status: 'loading' });
-  fetchData()
-    .then(() => console.log('Фоновое обновление завершено'))
-    .catch(e => console.error('Ошибка обновления:', e.message));
-  res.json({ status: 'ok', message: 'Обновление запущено' });
+  fetchData().catch(e => console.error('Ошибка:', e.message));
+  res.json({ status: 'ok' });
 });
 
 app.get('/api/status', (req, res) => {
-  res.json({
-    has_data:    !!cache.data,
-    is_loading:  cache.loading,
-    updated:     cache.updated,
-    api_key_set: !!WB_API_KEY,
-  });
+  res.json({ has_data: !!cache.data, is_loading: cache.loading, updated: cache.updated, api_key_set: !!WB_API_KEY });
 });
 
-app.get('/api/withdraw', (req, res) => {
-  res.json({ list: loadWithdraw() });
-});
+app.get('/api/withdraw', (req, res) => res.json({ list: loadWithdraw() }));
 
 app.post('/api/withdraw', (req, res) => {
   const list = req.body.list || [];
   saveWithdraw(list);
-  // пересчитываем если есть кэш
   if (cache.data) {
-    cache.data.rows.forEach(r => r.wd = new Set(list).has(r.sku));
+    const s = new Set(list);
+    cache.data.rows.forEach(r => r.wd = s.has(r.sku));
     cache.data.withdraw = list;
   }
   res.json({ status: 'ok', count: list.length });
 });
 
-// ── СТАРТ ─────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-  // Автозагрузка при старте если есть ключ
+  console.log('Сервер запущен на порту ' + PORT);
   if (WB_API_KEY) {
-    console.log('Запускаю начальную загрузку данных...');
+    console.log('Запускаю загрузку данных...');
     fetchData().catch(e => console.error('Ошибка начальной загрузки:', e.message));
-  } else {
-    console.log('WB_API_KEY не задан — данные не загружены');
   }
 });
