@@ -1,1 +1,539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Naumova Dreams</title>
+<style>
+:root{--bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;--brd:rgba(255,255,255,.07);
+--txt:#e2e8f0;--txt2:#8892a4;--acc:#e8b84b;--blue:#4a9eff;--green:#34d399;
+--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--teal:#2dd4bf;--purple:#a78bfa}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;font-size:13px}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--brd);display:flex;align-items:center;
+  justify-content:space-between;padding:0 16px;height:52px;position:sticky;top:0;z-index:100;gap:8px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-ico{width:28px;height:28px;background:var(--acc);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-name{font-weight:700;font-size:14px;color:var(--acc)}
+.logo-sub{font-size:10px;color:var(--txt2)}
+.hdr-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.badge{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--brd);
+  color:var(--txt2);background:var(--bg3);white-space:nowrap}
+.badge.ok{color:var(--green);border-color:rgba(52,211,153,.3)}
+.badge.loading{color:var(--yellow);border-color:rgba(251,191,36,.3)}
+.badge.err{color:var(--red);border-color:rgba(248,113,113,.3)}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:7px;
+  border:1px solid var(--brd);background:var(--bg3);color:var(--txt);cursor:pointer;
+  font-size:12px;transition:all .15s;text-decoration:none;white-space:nowrap;font-family:inherit}
+.btn:hover{background:#252f45}
+.btn-acc{background:var(--acc);color:#0f1117;border-color:var(--acc);font-weight:700}
+.btn-acc:hover{background:#d4a43c}
+.btn-danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:var(--red)}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--brd);display:flex;padding:0 16px;overflow-x:auto}
+.tab{padding:10px 13px;font-size:12px;color:var(--txt2);cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--txt)}.tab.active{color:var(--txt);font-weight:600;border-bottom-color:var(--acc)}
+.main{padding:14px 16px;max-width:1600px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:13px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.b::before{background:var(--blue)}.kpi.g::before{background:var(--green)}
+.kpi.r::before{background:var(--red)}.kpi.o::before{background:var(--orange)}
+.kpi.y::before{background:var(--yellow)}.kpi.p::before{background:var(--purple)}
+.kpi-l{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.kpi-v{font-size:22px;font-weight:700;line-height:1}
+.kpi-s{font-size:10px;color:var(--txt2);margin-top:2px}
+.kpi.b .kpi-v{color:var(--blue)}.kpi.g .kpi-v{color:var(--green)}
+.kpi.r .kpi-v{color:var(--red)}.kpi.o .kpi-v{color:var(--orange)}
+.kpi.y .kpi-v{color:var(--yellow)}.kpi.p .kpi-v{color:var(--purple)}
+.sec{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;overflow:hidden;margin-bottom:12px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;
+  border-bottom:1px solid var(--brd);gap:8px;flex-wrap:wrap}
+.sec-t{font-weight:600;font-size:13px}
+.sec-c{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tw{overflow-x:auto;max-height:460px;overflow-y:auto}
+.tw::-webkit-scrollbar{width:4px;height:4px}
+.tw::-webkit-scrollbar-track{background:var(--bg2)}
+.tw::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg3);padding:8px 9px;text-align:left;font-weight:600;
+  color:var(--txt2);font-size:10px;letter-spacing:.03em;white-space:nowrap;
+  position:sticky;top:0;z-index:2;cursor:pointer;border-bottom:1px solid var(--brd)}
+thead th:hover{color:var(--txt)}
+tbody tr{border-bottom:1px solid var(--brd)}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody td{padding:7px 9px;white-space:nowrap}
+.tc{text-align:center}.tr{text-align:right}
+.srch{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--brd);
+  border-radius:7px;padding:5px 9px;min-width:180px}
+.srch input{background:none;border:none;outline:none;color:var(--txt);font-size:12px;width:100%;font-family:inherit}
+.pills{display:flex;gap:3px;flex-wrap:wrap}
+.pill{padding:3px 8px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;
+  font-size:11px;color:var(--txt2);transition:all .15s}
+.pill.active{border-color:var(--acc);color:var(--acc);background:rgba(232,184,75,.08)}
+.pill:hover:not(.active){color:var(--txt)}
+.pri{display:inline-block;padding:2px 6px;border-radius:20px;font-size:10px;font-weight:600}
+.p0,.p1{background:rgba(248,113,113,.15);color:var(--red)}
+.p2,.p3{background:rgba(251,146,60,.12);color:var(--orange)}
+.p4{background:rgba(74,158,255,.1);color:var(--blue)}.p5{background:rgba(52,211,153,.1);color:var(--green)}
+.cl{color:var(--red)}.cm{color:var(--yellow)}.ch{color:var(--green)}
+.db{display:flex;align-items:center;gap:4px}.db-t{width:48px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.db-f{height:100%;border-radius:2px}.db-v{font-size:10px;min-width:22px;text-align:right}
+.own{width:54px;border:1px solid rgba(251,191,36,.3);border-radius:5px;padding:2px 5px;
+  font-size:11px;text-align:center;background:rgba(251,191,36,.06);color:var(--txt);font-family:inherit}
+.own:focus{outline:none;border-color:var(--yellow)}
+.pinp{width:60px;border:1px solid var(--brd);border-radius:5px;padding:2px 5px;font-size:11px;
+  text-align:right;background:var(--bg3);color:var(--txt);font-family:inherit}
+.pinp:focus{outline:none;border-color:var(--teal)}
+.note{background:rgba(232,184,75,.06);border-left:3px solid var(--acc);padding:7px 12px;
+  font-size:12px;color:var(--yellow);margin-bottom:10px;border-radius:0 6px 6px 0}
+.tf{padding:7px 12px;font-size:10px;color:var(--txt2);border-top:1px solid var(--brd)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;
+  justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--brd);border-radius:13px;
+  width:min(500px,92vw);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.mh{padding:16px 20px 12px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.mh h3{font-size:14px;font-weight:700}
+.mb{padding:16px 20px;overflow-y:auto;flex:1}
+.mf{padding:12px 20px;border-top:1px solid var(--brd);display:flex;gap:6px;justify-content:flex-end}
+.fld{margin-bottom:13px}
+.fld label{font-size:11px;color:var(--txt2);margin-bottom:4px;display:block}
+.fld input,.fld textarea{width:100%;background:var(--bg3);border:1px solid var(--brd);
+  border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;outline:none;
+  transition:border .15s;font-family:inherit}
+.fld input:focus,.fld textarea:focus{border-color:var(--acc)}
+.fld textarea{min-height:130px;max-height:260px;resize:vertical;font-size:11px;line-height:1.7}
+.cats-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;margin-bottom:12px}
+.cat-c{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:11px}
+.cat-n{font-weight:600;font-size:12px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-r{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.cat-r span:first-child{color:var(--txt2)}
+.toasts{position:fixed;bottom:16px;right:16px;z-index:300;display:flex;flex-direction:column;gap:6px}
+.toast{background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:9px 14px;
+  font-size:12px;display:flex;align-items:center;gap:6px;animation:si .2s ease}
+.toast.ok{border-color:rgba(52,211,153,.4)}.toast.err{border-color:rgba(248,113,113,.4)}
+@keyframes si{from{transform:translateX(14px);opacity:0}}
+.spin{display:inline-block;width:30px;height:30px;border:2px solid var(--bg3);
+  border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{padding:40px;text-align:center;color:var(--txt2)}
+.info-box{background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;
+  color:var(--txt2);line-height:1.8;margin-bottom:12px}
+.info-box code{color:var(--txt);font-family:monospace}
+@media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
 
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-ico">👗</div>
+    <div><div class="logo-name">Naumova Dreams</div><div class="logo-sub">Планировщик производства</div></div>
+  </div>
+  <div class="hdr-r">
+    <span class="badge" id="st">Загрузка...</span>
+    <button class="btn" onclick="refresh()">🔄 Обновить</button>
+    <button class="btn" onclick="openWD()">🚫 Выводимые</button>
+    <button class="btn" onclick="openAPI()">⚙️ API ключ</button>
+    <button class="btn btn-acc" onclick="exportXLSX()">⬇️ Excel</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" onclick="goTab('dash')">📊 Дашборд</div>
+  <div class="tab" onclick="goTab('prod')">🏭 Производство</div>
+  <div class="tab" onclick="goTab('ship')">🚚 Отгрузки</div>
+  <div class="tab" onclick="goTab('proc')">🧵 Закупка сырья</div>
+  <div class="tab" onclick="goTab('cats')">📈 Категории</div>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="tab-dash">
+  <div class="kpis">
+    <div class="kpi b"><div class="kpi-l">Активных позиций</div><div class="kpi-v" id="k0">—</div><div class="kpi-s">арт.+размер</div></div>
+    <div class="kpi g"><div class="kpi-l">Склад WB</div><div class="kpi-v" id="k1">—</div><div class="kpi-s">физически</div></div>
+    <div class="kpi p"><div class="kpi-l">Эфф. остаток</div><div class="kpi-v" id="k2">—</div><div class="kpi-s">с учётом %выкупа</div></div>
+    <div class="kpi y"><div class="kpi-l">Ср. % выкупа</div><div class="kpi-v" id="k3">—</div><div class="kpi-s">по ассортименту</div></div>
+    <div class="kpi r"><div class="kpi-l">В нуле / срочно</div><div class="kpi-v" id="k4">—</div><div class="kpi-s">нуль / &lt;14 дн</div></div>
+    <div class="kpi o"><div class="kpi-l">К производству</div><div class="kpi-v" id="k5">—</div><div class="kpi-s">штук</div></div>
+  </div>
+  <div class="sec">
+    <div class="sec-h">
+      <div class="sec-t">Все позиции</div>
+      <div class="sec-c">
+        <div class="srch">🔍<input id="dq" placeholder="Поиск по артикулу..." oninput="rD()"></div>
+        <div class="pills">
+          <div class="pill active" data-p="all" onclick="sp(this,'all')">Все</div>
+          <div class="pill" data-p="01" onclick="sp(this,'01')" style="color:var(--red)">🔴 Нет стока</div>
+          <div class="pill" data-p="23" onclick="sp(this,'23')" style="color:var(--orange)">🟠 7–30 дн</div>
+          <div class="pill" data-p="4"  onclick="sp(this,'4')"  style="color:var(--blue)">🔵 30–60 дн</div>
+        </div>
+      </div>
+    </div>
+    <div class="tw"><table><thead><tr>
+      <th>Артикул</th><th>Размер</th><th>Категория</th>
+      <th class="tr">%выкупа</th><th class="tr">Склад WB</th>
+      <th class="tr">В пути▶</th><th class="tr">Возвр.◀</th>
+      <th class="tr">Эфф.ост.</th><th>Дней запаса</th>
+      <th class="tr">Произвести</th><th>Приоритет</th>
+    </tr></thead><tbody id="db"></tbody></table></div>
+    <div class="tf" id="df"></div>
+  </div>
+</div>
+
+<!-- PRODUCTION -->
+<div id="tab-prod" style="display:none">
+  <div class="note">⚡ Колонка «Свой склад» — введите остаток с вашего склада, потребность пересчитается.</div>
+  <div class="sec">
+    <div class="sec-h">
+      <div class="sec-t">🏭 План производства — по размерам</div>
+      <div class="sec-c">
+        <div class="srch">🔍<input id="pq" placeholder="Поиск..." oninput="rP()"></div>
+        <span style="font-size:11px;color:var(--txt2)" id="pl"></span>
+      </div>
+    </div>
+    <div class="tw"><table><thead><tr>
+      <th>Артикул</th><th>Размер</th><th>Категория</th>
+      <th class="tr">%выкупа</th><th class="tr">Эфф.ост.WB</th>
+      <th class="tc" style="color:var(--yellow)">Свой склад ✏️</th>
+      <th class="tr" style="color:var(--orange)">ПРОИЗВЕСТИ</th>
+      <th class="tr">Партия</th><th>Приоритет</th><th>Комментарий</th>
+    </tr></thead><tbody id="pb"></tbody></table></div>
+    <div class="tf" id="pf"></div>
+  </div>
+</div>
+
+<!-- SHIPMENTS -->
+<div id="tab-ship" style="display:none">
+  <div class="sec">
+    <div class="sec-h">
+      <div class="sec-t">🚚 План отгрузок на WB</div>
+      <div class="sec-c"><div class="srch">🔍<input id="sq" placeholder="Поиск..." oninput="rS()"></div></div>
+    </div>
+    <div class="tw"><table><thead><tr>
+      <th>Артикул</th><th>Размер</th><th>Категория</th>
+      <th class="tr">%выкупа</th><th class="tr">Склад WB</th>
+      <th class="tr">В пути▶</th><th class="tr">Возвр.◀</th>
+      <th class="tr">Эфф.ост.</th><th>Дней запаса</th>
+      <th class="tr">Отгрузить</th><th>Дата (рек.)</th>
+    </tr></thead><tbody id="sb"></tbody></table></div>
+    <div class="tf" id="sf"></div>
+  </div>
+</div>
+
+<!-- PROCUREMENT -->
+<div id="tab-proc" style="display:none">
+  <div class="note">🧵 Введите расход ткани и цену — стоимость посчитается автоматически.</div>
+  <div class="sec">
+    <div class="sec-h">
+      <div class="sec-t">🧵 Закупка ткани и сырья</div>
+      <div class="sec-c"><span style="font-size:11px;color:var(--txt2)" id="rl"></span></div>
+    </div>
+    <div class="tw"><table><thead><tr>
+      <th>Артикул</th><th>Категория</th><th>Тип ткани</th>
+      <th class="tr">Произвести</th>
+      <th class="tr" style="color:var(--teal)">Расход м/шт ✏️</th>
+      <th class="tr">Итого м</th>
+      <th class="tr" style="color:var(--teal)">Цена ₽/м ✏️</th>
+      <th class="tr">Стоимость ₽</th>
+    </tr></thead><tbody id="rb"></tbody><tfoot id="rf"></tfoot></table></div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div id="tab-cats" style="display:none">
+  <div class="cats-g" id="cg"></div>
+  <div class="sec">
+    <div class="sec-h"><div class="sec-t">📈 Все категории</div></div>
+    <div class="tw"><table><thead><tr>
+      <th>Категория</th><th class="tr">Позиций</th><th class="tr">Выкуплено</th>
+      <th class="tr">Склад WB</th><th class="tr">Эфф.ост.</th>
+      <th class="tr">Оборот ₽</th><th class="tr">Прод/день</th>
+      <th class="tr">%выкупа</th><th class="tr">Дней запаса</th>
+      <th class="tr">К произв.</th><th class="tr">Доля %</th>
+    </tr></thead><tbody id="cb"></tbody></table></div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL: API KEY -->
+<div class="ov" id="m-api">
+  <div class="modal">
+    <div class="mh"><h3>⚙️ API ключ Wildberries</h3><button class="btn" onclick="cm('m-api')">✕</button></div>
+    <div class="mb">
+      <div class="info-box">
+        Где взять ключ:<br>
+        <code>ЛК WB → Настройки → Доступ к API → Статистика → Создать токен</code><br><br>
+        ⚠️ Лучше вставить ключ прямо в файл <code>Code.gs</code> (строка <code>WB_API_KEY = '...'</code>) — там он хранится надёжнее.
+      </div>
+      <div class="fld"><label>API-ключ</label><input type="password" id="i-key" placeholder="eyJhbGci..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="cm('m-api')">Отмена</button>
+      <button class="btn btn-acc" onclick="saveKey()">Сохранить и обновить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: WITHDRAW -->
+<div class="ov" id="m-wd">
+  <div class="modal">
+    <div class="mh"><h3>🚫 Выводимые артикулы</h3><button class="btn" onclick="cm('m-wd')">✕</button></div>
+    <div class="mb">
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:10px">Один артикул на строку. Эти позиции исключены из всех планов.</p>
+      <div class="fld"><textarea id="wd-txt" spellcheck="false"></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="cm('m-wd')">Отмена</button>
+      <button class="btn btn-danger" onclick="saveWD()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="ts"></div>
+
+<!-- SheetJS для Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const TGT=60, MB=10;
+let rows=[], cats=[], sum={}, ownS={}, procI={}, priF='all';
+
+const fm=n=>n==null?'—':Math.round(n).toLocaleString('ru');
+const r1=n=>Math.round(n*10)/10;
+const pc=n=>n==null?'—':Math.round(n*100)+'%';
+const fR=n=>!n?'—':Math.round(n).toLocaleString('ru')+'₽';
+
+function dc(d){if(d===0||d<7)return'var(--red)';if(d<30)return'var(--orange)';if(d<60)return'var(--blue)';return'var(--green)'}
+function dbar(d){const c=dc(d),w=d>=999?100:Math.min(d/TGT*100,100),l=d>=999?'∞':Math.round(d)+'д';
+  return`<div class="db"><div class="db-t"><div class="db-f" style="width:${w}%;background:${c}"></div></div><span class="db-v" style="color:${c}">${l}</span></div>`}
+function pb(p){const L=['Нет стока','< 7 дн','7–14 дн','14–30 дн','30–60 дн','Норма'];return`<span class="pri p${p}">${L[p]||'—'}</span>`}
+function cb2(v){const p=Math.round((v||0)*100);const c=p<30?'cl':p<60?'cm':'ch';return`<span class="${c}">${p}%</span>`}
+function pN(d){if(d===0)return 0;if(d<7)return 1;if(d<14)return 2;if(d<30)return 3;if(d<60)return 4;return 5}
+function rDate(d){const t=new Date();const a=n=>{const dt=new Date(t);dt.setDate(dt.getDate()+n);return dt.toLocaleDateString('ru',{day:'2-digit',month:'2-digit'})};
+  if(d===0)return'<b style="color:var(--red)">СЕГОДНЯ</b>';return a(d<3?1:d<7?3:d<14?7:d<30?14:25)}
+
+const TABS=['dash','prod','ship','proc','cats'];
+function goTab(id){TABS.forEach(t=>{const e=document.getElementById('tab-'+t);if(e)e.style.display='none'});
+  const e=document.getElementById('tab-'+id);if(e)e.style.display='';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===id))}
+
+function setBadge(cls,txt){const b=document.getElementById('st');b.textContent=txt;b.className='badge '+cls}
+
+// ── ЗАГРУЗКА ──
+function init(){
+  setBadge('loading','Загрузка...');
+  google.script.run.withSuccessHandler(d=>{
+    if(d.ok){applyData(d.data,d.updated)}
+    else{setBadge('err','Нет данных');showEmpty()}
+  }).withFailureHandler(e=>setBadge('err','Ошибка')).getCachedData();
+}
+
+function refresh(){
+  setBadge('loading','Обновление...');
+  toast('Загружаем данные из WB API (~30 сек)...','ok');
+  google.script.run.withSuccessHandler(d=>{
+    if(d.ok){applyData(d.data,d.updated);toast('Данные обновлены!','ok')}
+    else{setBadge('err','Ошибка');toast('Ошибка: '+d.error,'err')}
+  }).withFailureHandler(e=>toast('Ошибка: '+e.message,'err')).loadWBData();
+}
+
+function applyData(data, updated){
+  rows=data.rows||[]; cats=data.cats||[]; sum=data.summary||{};
+  renderAll();
+  const d=updated?new Date(updated):new Date();
+  setBadge('ok','Обновлено '+d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}));
+}
+
+function showEmpty(){
+  ['db','pb','sb','rb','cb'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<tr><td colspan="11" class="empty"><div class="spin"></div><div>Нажмите «Обновить» чтобы загрузить данные из WB</div></td></tr>'})
+}
+
+function renderAll(){renderKPIs();rD();rP();rS();rR();rC()}
+
+function renderKPIs(){const s=sum;
+  document.getElementById('k0').textContent=fm(s.active);
+  document.getElementById('k1').textContent=fm(s.wb_stock);
+  document.getElementById('k2').textContent=fm(s.eff);
+  document.getElementById('k3').textContent=pc(s.conv);
+  document.getElementById('k4').textContent=(s.zero||0)+'/'+(s.critical||0);
+  document.getElementById('k5').textContent=fm(s.need)}
+
+let priF='all';
+function sp(el,v){priF=v;document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.p===v));rD()}
+
+function getAct(){
+  return rows.filter(r=>!r.wd&&r.sold>0).map(r=>{
+    const own=ownS[r.sku+'|'+r.size]||0,eff=r.eff+own;
+    const days=r.spd>0?Math.min(eff/r.spd,999):999;
+    const need=Math.max(0,Math.round(r.spd*TGT-eff));
+    const batch=need>0?Math.max(MB,Math.round(need/MB)*MB):0;
+    return{...r,own,eff,days,need,batch,pri:pN(days)}})}
+
+function rD(){
+  const q=(document.getElementById('dq').value||'').toLowerCase();
+  let d=getAct();
+  if(priF==='01')d=d.filter(r=>r.pri<=1);
+  else if(priF==='23')d=d.filter(r=>r.pri>=2&&r.pri<=3);
+  else if(priF==='4')d=d.filter(r=>r.pri===4);
+  if(q)d=d.filter(r=>(r.sku||'').toLowerCase().includes(q)||(r.cat||'').toLowerCase().includes(q));
+  d.sort((a,b)=>a.pri-b.pri||b.sold-a.sold);
+  document.getElementById('db').innerHTML=d.map(r=>`<tr>
+    <td style="font-family:monospace;font-size:11px;font-weight:600">${r.sku}</td>
+    <td class="tc"><code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:10px">${r.size}</code></td>
+    <td style="color:var(--txt2);max-width:100px;overflow:hidden;text-overflow:ellipsis">${r.cat}</td>
+    <td class="tr">${cb2(r.conv)}</td><td class="tr">${fm(r.wb)}</td>
+    <td class="tr" style="color:var(--blue)">${fm(r.to)}</td>
+    <td class="tr" style="color:var(--teal)">${fm(r.frm)}</td>
+    <td class="tr;font-weight:600">${r1(r.eff)}</td>
+    <td>${dbar(r.days)}</td>
+    <td class="tr" style="font-weight:600;color:${r.need>0?'var(--orange)':'var(--txt2)'}">${r.need>0?fm(r.need):'—'}</td>
+    <td>${pb(r.pri)}</td></tr>`).join('');
+  document.getElementById('df').textContent='Показано: '+d.length+' позиций'}
+
+function rP(){
+  const q=(document.getElementById('pq').value||'').toLowerCase();
+  const t=new Date();const a=n=>{const dt=new Date(t);dt.setDate(dt.getDate()+n);return dt.toLocaleDateString('ru',{day:'2-digit',month:'2-digit'})};
+  let d=getAct().filter(r=>r.need>0);
+  if(q)d=d.filter(r=>(r.sku||'').toLowerCase().includes(q)||(r.cat||'').toLowerCase().includes(q));
+  d.sort((a,b)=>a.pri-b.pri||b.sold-a.sold);
+  const cm=d=>d===0?'⚡ Немедленно':d<7?'Сегодня':d<14?'До '+a(7):d<30?'До '+a(14):'Плановый';
+  document.getElementById('pb').innerHTML=d.map(r=>`<tr>
+    <td style="font-family:monospace;font-size:11px;font-weight:600">${r.sku}</td>
+    <td class="tc"><code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:10px">${r.size}</code></td>
+    <td style="color:var(--txt2)">${r.cat}</td>
+    <td class="tr">${cb2(r.conv)}</td><td class="tr">${r1(r.eff)}</td>
+    <td class="tc"><input class="own" type="number" min="0" value="${r.own}" onchange="so('${r.sku}|${r.size}',this.value)"></td>
+    <td class="tr" style="font-weight:700;color:var(--orange)">${fm(r.need)}</td>
+    <td class="tr" style="font-weight:700">${fm(r.batch)}</td>
+    <td>${pb(r.pri)}</td><td style="color:var(--txt2);font-size:11px">${cm(r.days)}</td></tr>`).join('');
+  const tot=d.reduce((a,r)=>a+r.need,0);
+  document.getElementById('pl').textContent=d.length+' поз. · '+fm(tot)+' шт.';
+  document.getElementById('pf').textContent=d.length+' позиций · к производству: '+fm(tot)+' шт.'}
+
+function so(k,v){ownS[k]=parseInt(v)||0;rP();rS()}
+
+function rS(){
+  const q=(document.getElementById('sq').value||'').toLowerCase();
+  let d=getAct().filter(r=>r.days<60);
+  if(q)d=d.filter(r=>(r.sku||'').toLowerCase().includes(q)||(r.cat||'').toLowerCase().includes(q));
+  d.sort((a,b)=>a.pri-b.pri||b.sold-a.sold);
+  document.getElementById('sb').innerHTML=d.map(r=>`<tr>
+    <td style="font-family:monospace;font-size:11px;font-weight:600">${r.sku}</td>
+    <td class="tc"><code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:10px">${r.size}</code></td>
+    <td style="color:var(--txt2)">${r.cat}</td>
+    <td class="tr">${cb2(r.conv)}</td><td class="tr">${fm(r.wb)}</td>
+    <td class="tr" style="color:var(--blue)">${fm(r.to)}</td>
+    <td class="tr" style="color:var(--teal)">${fm(r.frm)}</td>
+    <td class="tr;font-weight:600">${r1(r.eff)}</td>
+    <td>${dbar(r.days)}</td>
+    <td class="tr" style="font-weight:700;color:var(--orange)">${r.need>0?fm(r.need):'—'}</td>
+    <td>${rDate(r.days)}</td></tr>`).join('');
+  document.getElementById('sf').textContent=d.length+' позиций'}
+
+function rR(){
+  const sm={};
+  getAct().filter(r=>r.need>0).forEach(r=>{
+    if(!sm[r.sku])sm[r.sku]={sku:r.sku,cat:r.cat,fab:r.fabric||'Уточнить',b:0};
+    sm[r.sku].b+=r.batch});
+  const items=Object.values(sm).sort((a,b)=>b.b-a.b);
+  let tM=0,tR=0;
+  document.getElementById('rb').innerHTML=items.map(it=>{
+    const i=procI[it.sku]||{r:'',p:''};
+    const m=(parseFloat(i.r)||0)*it.b,rb=m*(parseFloat(i.p)||0);
+    tM+=m;tR+=rb;
+    return`<tr>
+      <td style="font-family:monospace;font-size:11px;font-weight:600">${it.sku}</td>
+      <td style="color:var(--txt2)">${it.cat}</td>
+      <td style="color:var(--txt2);font-size:11px">${it.fab}</td>
+      <td class="tr;font-weight:600">${fm(it.b)}</td>
+      <td class="tr"><input class="pinp" type="number" min="0" step="0.1" value="${i.r}" placeholder="м/шт" style="color:var(--teal)" onchange="spi('${it.sku}','r',this.value)"></td>
+      <td class="tr;font-weight:600;color:var(--blue)">${m>0?r1(m)+' м':'—'}</td>
+      <td class="tr"><input class="pinp" type="number" min="0" value="${i.p}" placeholder="₽/м" style="color:var(--teal)" onchange="spi('${it.sku}','p',this.value)"></td>
+      <td class="tr;font-weight:600;color:var(--yellow)">${rb>0?fR(rb):'—'}</td></tr>`}).join('');
+  document.getElementById('rl').textContent=items.length+' артикулов';
+  document.getElementById('rf').innerHTML=`<tr style="background:var(--bg3)">
+    <td colspan="5" style="padding:8px 9px;font-weight:600">ИТОГО</td>
+    <td class="tr" style="font-weight:700;color:var(--blue);padding:8px 9px">${tM>0?r1(tM)+' м':'—'}</td>
+    <td></td>
+    <td class="tr" style="font-weight:700;color:var(--yellow);padding:8px 9px">${tR>0?fR(tR):'—'}</td></tr>`}
+function spi(sku,f,v){if(!procI[sku])procI[sku]={r:'',p:''};procI[sku][f]=v;rR()}
+
+function rC(){
+  document.getElementById('cg').innerHTML=cats.slice(0,6).map(c=>`
+    <div class="cat-c">
+      <div class="cat-n">${c.cat}</div>
+      <div class="cat-r"><span>Выкуплено</span><span style="font-weight:600">${fm(c.sold)} шт.</span></div>
+      <div class="cat-r"><span>Оборот</span><span style="color:var(--yellow)">${fR(c.rev)}</span></div>
+      <div class="cat-r"><span>% выкупа</span><span>${pc(c.conv)}</span></div>
+      <div class="cat-r"><span>Дней запаса</span><span style="color:${dc(c.days||0)}">${c.days<999?Math.round(c.days)+'д':'∞'}</span></div>
+      <div class="cat-r"><span>К произв.</span><span style="color:var(--orange);font-weight:600">${c.need>0?fm(c.need)+' шт.':'✓'}</span></div>
+    </div>`).join('');
+  document.getElementById('cb').innerHTML=cats.map(c=>`<tr>
+    <td style="font-weight:600">${c.cat}</td><td class="tr">${c.pos}</td>
+    <td class="tr">${fm(c.sold)}</td><td class="tr">${fm(c.wb)}</td>
+    <td class="tr">${fm(c.eff)}</td><td class="tr;color:var(--yellow)">${fR(c.rev)}</td>
+    <td class="tr">${r1(c.spd||0)}</td><td class="tr">${cb2(c.conv)}</td>
+    <td class="tr" style="color:${dc(c.days||0)}">${c.days<999?Math.round(c.days)+'д':'∞'}</td>
+    <td class="tr;font-weight:600;color:var(--orange)">${c.need>0?fm(c.need):'—'}</td>
+    <td class="tr;color:var(--txt2)">${Math.round(c.share||0)}%</td></tr>`).join('')}
+
+// ── MODALS ──
+function openAPI(){document.getElementById('m-api').classList.add('open')}
+function openWD(){
+  google.script.run.withSuccessHandler(d=>{
+    document.getElementById('wd-txt').value=d.list.join('\n');
+    document.getElementById('m-wd').classList.add('open')
+  }).getWithdraw()}
+function cm(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.ov').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)cm(el.id)}))
+
+function saveKey(){
+  const k=document.getElementById('i-key').value.trim();
+  if(!k){toast('Введите ключ','err');return}
+  google.script.run.withSuccessHandler(()=>{cm('m-api');toast('Ключ сохранён, обновляем...','ok');refresh()}).saveApiKey(k)}
+
+function saveWD(){
+  const list=document.getElementById('wd-txt').value.split('\n').map(s=>s.trim()).filter(s=>s&&!s.startsWith('#'));
+  google.script.run.withSuccessHandler(()=>{cm('m-wd');toast('Сохранено '+list.length+' артикулов','ok')}).saveWithdraw(list)}
+
+// ── EXCEL ──
+function exportXLSX(){
+  if(!rows.length){toast('Нет данных','err');return}
+  const wb=XLSX.utils.book_new();
+  const act=getAct();
+  const toProd=act.filter(r=>r.need>0).sort((a,b)=>a.pri-b.pri||b.sold-a.sold);
+  const toShip=act.filter(r=>r.days<60).sort((a,b)=>a.pri-b.pri||b.sold-a.sold);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(toProd.map(r=>({
+    Артикул:r.sku,Размер:r.size,Категория:r.cat,'%выкупа':Math.round(r.conv*100)+'%',
+    'Эфф.ост.WB':r1(r.eff),'Свой склад':r.own||0,ПРОИЗВЕСТИ:r.need,Партия:r.batch,
+    Приоритет:['Нет стока','<7дн','7-14дн','14-30дн','30-60дн','Норма'][r.pri]||''
+  }))),'Производство');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(toShip.map(r=>({
+    Артикул:r.sku,Размер:r.size,Категория:r.cat,'%выкупа':Math.round(r.conv*100)+'%',
+    'Склад WB':r.wb,'В пути к пок.':r.to,'Возвраты':r.frm,'Эфф.ост.':r1(r.eff),
+    'Дней запаса':Math.round(r.days),Отгрузить:r.need
+  }))),'Отгрузки');
+  const sm2={};act.filter(r=>r.need>0).forEach(r=>{
+    if(!sm2[r.sku])sm2[r.sku]={Артикул:r.sku,Категория:r.cat,'Тип ткани':r.fabric||'Уточнить',Произвести:0,'Расход м/шт':'','Итого м':'','Цена ₽/м':'','Стоимость ₽':''};
+    sm2[r.sku].Произвести+=r.batch});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(Object.values(sm2)),'Закупка сырья');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cats.map(c=>({
+    Категория:c.cat,Позиций:c.pos,Выкуплено:c.sold,'Склад WB':c.wb,'Эфф.ост.':Math.round(c.eff),
+    'Оборот ₽':c.rev,'Прод/день':r1(c.spd||0),'%выкупа':pc(c.conv),'Дней запаса':Math.round(c.days),'К произв.':c.need,'Доля %':c.share
+  }))),'Категории');
+  XLSX.writeFile(wb,'NaumovaDreams_'+new Date().toISOString().split('T')[0]+'.xlsx')}
+
+// ── TOAST ──
+function toast(msg,type='ok'){const e=document.createElement('div');e.className='toast '+type;
+  e.innerHTML=`<span>${type==='ok'?'✅':'❌'}</span><span>${msg}</span>`;
+  document.getElementById('ts').appendChild(e);setTimeout(()=>e.remove(),4000)}
+
+// ── INIT ──
+init();
+</script>
+</body>
+</html>
